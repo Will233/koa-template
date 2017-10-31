@@ -23,29 +23,32 @@ const getMockData = (file) => {
 
 const queryData = (id) => {
   let dataFile = mockDir + 'data.json'
-  let { rows: data} = getMockData(dataFile)
-  let dataItem = _.find(data, i => i.id === id)
+  let {rows: data} = getMockData(dataFile)
+  console.log(data)
+  let dataItem = _.find(data, (i) => {
+    return parseInt(i.id) === parseInt(id)
+  })
+  console.log(dataItem)
   return dataItem
 }
 
 const GetData = (ctx) => {
   let id = ctx.request.query.id
-  console.log(id)
   if (_.isEmpty(id)) {
-    JsonResponse.call(ctx, 404, {
+    return JsonResponse(ctx, 404, {
       code: BUSSINESS_CODE_DATA.DATA_NOT_FOUND,
       message: '参数错误'
     })
   }
   let item = queryData(id)
   if (_.isEmpty(item)) {
-    JsonResponse.call(ctx, 404, {
+    return JsonResponse(ctx, 404, {
       code: BUSSINESS_CODE_DATA.DATA_NOT_FOUND,
       message: '记录不存在'
     })
   } else {
-    JsonResponse.call(ctx, 200, {
-      code: BUSSINESS_CODE_DATA.DATA_NOT_FOUND,
+    return JsonResponse(ctx, 200, {
+      code: BUSSINESS_CODE_DATA.DATA_FOUND,
       message: 'success',
       data: item
     })
