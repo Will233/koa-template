@@ -36,9 +36,9 @@ const createResponseBody = (body) => {
   return resBody
 }
 
-const JsonResponse =  (httpCode, body) => {
-  this.status = httpCode
-  this.body = createResponseBody(body)
+const JsonResponse =  (ctx, httpCode, body) => {
+  ctx.status = httpCode
+  ctx.body = createResponseBody(body)
 }
 
 module.exports = {
