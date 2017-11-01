@@ -1,6 +1,7 @@
 const fs = require('fs')
 const _ = require('lodash')
 const {JsonResponse} = require('../lib/jsonResponse')
+const cookieService = require('../service/cookieService')
 
 const BUSSINESS_CODE_DATA = {
   DATA_FOUND: 1000,
@@ -55,6 +56,23 @@ const GetData = (ctx) => {
   }
 }
 
+const GetCookie = (ctx) => {
+  let times = cookieService.getCookie(ctx, 'visitTimes') || 0
+  ctx.cookies.set('visitTimes', ++times, {
+    maxAge: 60000,
+    httpOnly: true,
+    secure: false
+  })
+  return JsonResponse(ctx, 200, {
+    code: BUSSINESS_CODE_DATA.DATA_FOUND,
+    message: 'success',
+    data: {
+      visitTimes: times
+    }
+  })
+}
+
 module.exports = {
-  GetData
+  GetData,
+  GetCookie
 }

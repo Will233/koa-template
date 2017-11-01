@@ -2,63 +2,87 @@ const fs = require('fs')
 const _ = require('lodash')
 const secureService = require('../service/secureService')
 const {JsonResponse} = require('../lib/jsonResponse')
-
-const mockDir = '../../mock/'
+const tokenService = require('../service/tokenService')
+const {GetMockData} = require('../service/daoService')
+const AppInfo = require('../../config/config.default.js')()
   //业务状态码 ModuleCode + detailCode
   // user模块 2000
 const BUSSINESS_CODE = {
   LOGIN_SUCCESS: 2000,
   USER_NOT_EXIST: 2001,
   WRONG_PASSWORD: 2002,
-  ILEGAL_PARAMS: 2003
-}
-const getMockData = (file) => {
-  if (!file) {
-    throw new Error('Empty filename')
-  }
-  try {
-    return JSON.parse(fs.readFileSync(file))
-  } catch (e) {
-    console.log(e.message)
-    return ''
-  }
+  ILEGAL_PARAMS: 2003,
+  QUERY_SUCCESS: 2004
 }
 
 const Login = (ctx) => {
   let username = ctx.request.body.username
-  let password = secureService.encryptPassword(ctx.request.body.password)
+  let password = secureService.encryptPassword(ctx.request.body.password, AppInfo.pwdSignKey)
+  console.log(username)
+  console.log(password)
   if (_.isEmpty(username) || _.isEmpty(password)){
-    JsonResponse.call(ctx, 400, {
+    return JsonResponse(ctx, 400, {
       code: BUSSINESS_CODE.ILEGAL_PARAMS,
       message: '参数非法'
     })
   }
-  let userFile = mockDir + 'user.json'
-  let { rows: users} = getMockData(userFile)
+  let { rows: users} = GetMockData('user.json')
   if (_.isEmpty(users)) {
-    JsonResponse.call(ctx, 404, {
+    return JsonResponse(ctx, 404, {
       code: BUSSINESS_CODE.USER_NOT_EXIST,
       message: '用户不存在'
     })
   }
   let userItem = _.find(users, i => i.username === username)
   if (userItem == undefined || userItem == null) {
-    JsonResponse.call(ctx, 404, {
+    return JsonResponse(ctx, 404, {
       code: BUSSINESS_CODE.USER_NOT_EXIST,
       message: '用户不存在'
     })
   }
   if (userItem.password !== password) {
-    JsonResponse.call(ctx, 401, {
+    return JsonResponse(ctx, 401, {
       code: BUSSINESS_CODE.WRONG_PASSWORD,
       message: '用户名或者密码错误'
     })
   }
-  JsonResponse.call(ctx, 200, {
+  //jwt 生成
+  let token = tokenService.createToken(userItem.id, userItem.username)
+  ctx.cookies.set('token', token)
+  return JsonResponse(ctx, 200, {
     code: BUSSINESS_CODE.LOGIN_SUCCESS,
     message: '登录成功'
   })
 }
+
+const GetUser = (ctx) => {
+  let id = ctx.request.query.id
+  let { rows: users} = GetMockData('user.json')
+  if (_.isEmpty(users)) {
+    return JsonResponse(ctx, 404, {
+      code: BUSSINESS_CODE.USER_NOT_EXIST,
+      message: '用户不存在'
+    })
+  }
+  let user = _.find(users, x => parseInt(x.id) === parseInt(id))
+  if (_.isEmpty(users)) {
+    return JsonResponse(ctx, 404, {
+      code: BUSSINESS_CODE.USER_NOT_EXIST,
+      message: '用户不存在'
+    })
+  }
+  return JsonResponse(ctx, 200, {
+    code: BUSSINESS_CODE.QUERY_SUCCESS,
+    message: 'success',
+    data: {
+      id: user.id,
+      username: user.username,
+      role: user.role
+    }
+  })
+}
+
 module.exports = {
-  Login
+  Login,
+  GetUser
 }
