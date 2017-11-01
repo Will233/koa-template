@@ -8,7 +8,8 @@ module.exports = appInfo => {
     env: 'development',
     name: 'koa-template',
     port: 3003,
-    keys: ''
+    pwdSignKey: 'password_key',
+    jwtSignKey: 'jwt_sign_key'
   }
   // 404 页面
   config.notfound = {
