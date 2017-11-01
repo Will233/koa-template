@@ -1,0 +1,9 @@
+{
+  "rows": [{
+    "rolename": "admin",
+    "auth": "\/*"
+  }, {
+    "rolename": "user",
+    "auth": "\/data\/*"
+  }]
+}

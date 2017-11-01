@@ -1,0 +1,15 @@
+{
+  "rows": [{
+    "id": 1,
+    "username": "admin",
+    "role": "admin",
+    "password": "f70e658bed460e016bbcaa9e9bf38d0cbc1eeded",
+    "actual": "123"
+  }, {
+    "id": 2,
+    "username": "Daniel",
+    "role": "user",
+    "password": "f70e658bed460e016bbcaa9e9bf38d0cbc1eeded",
+    "actual": "123"
+  }]
+}
