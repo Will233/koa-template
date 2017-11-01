@@ -7,7 +7,7 @@ const AppInfo = require('./config/config.default.js')()
 app.use(bodyParser())
 console.log(AppInfo)
 // 静态目录
-app.use(koaStatic({rootDir: 'public', rootPath: '/app/public'}));
+app.use(koaStatic({rootDir: './app/public', rootPath: '/public'}));
 app.use(router.routes()).use(router.allowedMethods());
 app.listen(AppInfo.port)
 console.log('Koa server is started ...')
