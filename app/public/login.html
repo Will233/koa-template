@@ -2,17 +2,150 @@
 <html>
 <head>
   <title>登录</title>
+  <meta name="App-Config" content="fullscreen=yes,useHistoryState=yes,transition=yes">
+  <meta content="yes" name="apple-mobile-web-app-capable">
+  <meta content="yes" name="apple-touch-fullscreen">
+  <meta content="telephone=no,email=no" name="format-detection">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 </head>
+<style>
+body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%; 
+}
+.panel {
+  position: relative;
+  width: 90%;
+  margin: 0 auto;
+}
+.login-panel {
+  position: relative;
+  width: 90%;
+  margin: 0 auto;
+}
+input {
+  width: 100%;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 8px; 
+  margin-top: 12px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  outline-color: #bbb;
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+button {
+  width: 100%;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 8px;
+  margin-top: 12px;
+  border: solid 1px #ccc;
+  border-radius: 5px;
+  background-color: darkgreen;
+  color: #fff;
+}
+.data-panel {
+  display: none;
+}
+.data-panel button {
+  background-color: palevioletred; 
+}
+.data-wrap {
+  border: solid 1px #ccc;
+  margin-top: 10px;
+}
+.user-panel {
+  display: none;
+}
+</style>
 <body>
-  <div id="loginPanel">
-    <input id="username" type="text" name="username" value="Daniel" />
-    <input id="password" type="password" name="password" value="123"/>
-    <button id="login">登录</button>
+  <div>
+    <section id="loginPanel" class="login-panel panel">
+      <input id="username" type="text" name="username" value="Daniel" />
+      <input id="password" type="password" name="password" value="123"/>
+      <button id="login">登录</button>
+    </section>
+    <section id="_dataPanel" class="panel data-panel">
+        <input id="_dataId" type="text" name="dataid" value="1" />
+        <button id="_dataBtn">获取数据</button>
+        <div id="_dataWrap" class="data-wrap">
+        </div>
+    </section>
+    
+    <section id="_userPanel" class="panel user-panel">
+      <input id="_userId" type="text" name="userid" value="1" />
+      <button id="_userBtn">查询用户</button>
+      <div id="_msg" class="message">
+      </div>
+    </section>
+
   </div>
 </body>
 <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
+  // 获取数据 
+  window.$API = {
+    getData: (id, callback) => {
+      $.getJSON('/data', {
+        id: id
+      }, res => {
+        callback(res)
+      })
+    },
+    getUser: (id, callback) => {
+      $.getJSON('/user', {
+        id : id || 1
+      }, (res) => {
+        callback(res)
+      })
+    }
+  }
+
+  window.$Render = {
+    renderData: (el, resdata) => {
+      if (typeof resdata === 'string') {
+        resdata = JSON.parse(resdata)
+      }
+      let {code, message, data} = resdata
+      if (!data) {
+        el.html(`<p>找不到数据</p>`)
+      } else {
+        let {id, name, age} = data
+        let html = `<h5>DATA RESULT</h5><p>id: ${id} </br>name: ${name}</br> age:${age}</p>`
+        el.html(html)
+      }
+    },
+    renderUser: (el, resdata) => {
+      if (typeof resdata === 'string') {
+        resdata = JSON.parse(resdata)
+      }
+      let {code, message, data} = resdata
+      if (!data) {
+        el.html(`<p>找不到用户</p>`)
+      } else {
+        let {id, username, role} = data
+        let html = `<h5>USER RESULT</h5><p>id: ${id}</br> username: ${username}</br>role: ${role}</br></p>`
+        el.html(html)
+      }
+    }
+  }
+
   window.onload = function () {
+    var loginPanel = $('#loginPanel')
+    var dataPanel = $('#_dataPanel')
+    var userPanel = $('#_userPanel')
+
+    var userBoard = $('#_msg')
+    var dataBoard = $('#_dataWrap')
+
     $('#login').click(function (){
       let username = $('#username').val()
       let password = $('#password').val()
@@ -22,17 +155,27 @@
       }, (res) => {
         console.log(res)
         if (res && res.code == 2000) {
-          alert('登录成功')
-          $('#loginPanel').hide()
-          $.getJSON('/user', {
-            id : 1
-          }, (res) => {
-            console.log(res)
-          })
+          loginPanel.hide()
+          dataPanel.show()
+          userPanel.show()
         } else {
           alert(res.message)
         }
       }, 'json')
+    })
+
+    $('#_dataBtn').click(() => {
+      let dataId = $('#_dataId').val()
+      $API.getData(dataId, res => {
+        $Render.renderData(dataBoard, res)
+      })
+    })
+    $('#_userBtn').click(() => {
+      let userId = $('#_userId').val()
+      $API.getUser(userId, res => {
+        console.log(res)
+        $Render.renderUser(userBoard, res)
+      })
     })
   }
 </script>

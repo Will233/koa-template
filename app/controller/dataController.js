@@ -36,14 +36,14 @@ const queryData = (id) => {
 const GetData = (ctx) => {
   let id = ctx.request.query.id
   if (_.isEmpty(id)) {
-    return JsonResponse(ctx, 404, {
+    return JsonResponse(ctx, 200, {
       code: BUSSINESS_CODE_DATA.DATA_NOT_FOUND,
       message: '参数错误'
     })
   }
   let item = queryData(id)
   if (_.isEmpty(item)) {
-    return JsonResponse(ctx, 404, {
+    return JsonResponse(ctx, 200, {
       code: BUSSINESS_CODE_DATA.DATA_NOT_FOUND,
       message: '记录不存在'
     })

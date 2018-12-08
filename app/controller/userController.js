@@ -48,7 +48,7 @@ const Login = (ctx) => {
   }
   //jwt 生成
   let token = tokenService.createToken(userItem.id, userItem.username)
-  ctx.cookies.set('token', token)
+  ctx.cookies.set('access_token', token)
   return JsonResponse(ctx, 200, {
     code: BUSSINESS_CODE.LOGIN_SUCCESS,
     message: '登录成功'
@@ -59,14 +59,14 @@ const GetUser = (ctx) => {
   let id = ctx.request.query.id
   let { rows: users} = GetMockData('user.json')
   if (_.isEmpty(users)) {
-    return JsonResponse(ctx, 404, {
+    return JsonResponse(ctx, 200, {
       code: BUSSINESS_CODE.USER_NOT_EXIST,
       message: '用户不存在'
     })
   }
   let user = _.find(users, x => parseInt(x.id) === parseInt(id))
-  if (_.isEmpty(users)) {
-    return JsonResponse(ctx, 404, {
+  if (_.isEmpty(user)) {
+    return JsonResponse(ctx, 200, {
       code: BUSSINESS_CODE.USER_NOT_EXIST,
       message: '用户不存在'
     })

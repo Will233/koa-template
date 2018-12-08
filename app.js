@@ -3,11 +3,11 @@ const router = require('./app/router.js')
 const app = new Koa()
 const koaStatic = require('koa-static-server')
 const bodyParser = require('koa-body-parser')
-const AppInfo = require('./config/config.default.js')()
+const appConfig = require('./config/config.default.js')()
 app.use(bodyParser())
-console.log(AppInfo)
+console.log(appConfig)
 // 静态目录
 app.use(koaStatic({rootDir: './app/public', rootPath: '/public'}));
 app.use(router.routes()).use(router.allowedMethods());
-app.listen(AppInfo.port)
+app.listen(appConfig.port)
 console.log('Koa server is started ...')
